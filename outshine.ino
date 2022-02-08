@@ -12,7 +12,7 @@
 \/_________/ \/_________/ \_\/       \_____\/   \/_/    \/_/ \/_________/\/_/     \/_/ \/__________/
 
  * OUTSHINE - LED Controller
- * Brooke Chalmers, 2021
+ * Brooke Chalmers, 2022
  *
  * Handles receiving commands over I2C or UART
  * and displaying colors and animations on the LED strip.
@@ -96,6 +96,7 @@
 
 uint32_t framebuffer[LED_COUNT] = { 0 };
 uint8_t led_index = 0;
+uint8_t cycles_count = 0;
 uint8_t tick_index = 0;
 uint32_t active_color = 0x00FF0000;
 
@@ -185,7 +186,10 @@ void blit() {
 
 void tick() {
   led_index += 1;
-  led_index %= LED_COUNT;
+  if (led_index >= LED_COUNT) {
+    led_index = 0;
+    cycles_count += 1;
+  }
 
   tick_index += 1; // will rollover, it's OK
 
