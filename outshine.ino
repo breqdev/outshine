@@ -1,64 +1,98 @@
-#include <Wire.h>
-#include <Adafruit_NeoPixel.h>
-
 /*
- * LED Controller
+          _      _                _          _            _       _     _          _             _
+        /\ \   /\_\             /\ \       / /\         / /\    / /\  /\ \       /\ \     _    /\ \
+       /  \ \ / / /         _   \_\ \     / /  \       / / /   / / /  \ \ \     /  \ \   /\_\ /  \ \
+      / /\ \ \\ \ \__      /\_\ /\__ \   / / /\ \__   / /_/   / / /   /\ \_\   / /\ \ \_/ / // /\ \ \
+     / / /\ \ \\ \___\    / / // /_ \ \ / / /\ \___\ / /\ \__/ / /   / /\/_/  / / /\ \___/ // / /\ \_\
+    / / /  \ \_\\__  /   / / // / /\ \ \\ \ \ \/___// /\ \___\/ /   / / /    / / /  \/____// /_/_ \/_/
+   / / /   / / // / /   / / // / /  \/_/ \ \ \     / / /\/___/ /   / / /    / / /    / / // /____/\
+  / / /   / / // / /   / / // / /    _    \ \ \   / / /   / / /   / / /    / / /    / / // /\____\/
+ / / /___/ / // / /___/ / // / /    /_/\__/ / /  / / /   / / /___/ / /__  / / /    / / // / /______
+/ / /____\/ // / /____\/ //_/ /     \ \/___/ /  / / /   / / //\__\/_/___\/ / /    / / // / /_______\
+\/_________/ \/_________/ \_\/       \_____\/   \/_/    \/_/ \/_________/\/_/     \/_/ \/__________/
+
+ * OUTSHINE - LED Controller
  * Brooke Chalmers, 2021
- * 
- * Handles receiving commands over I2C (or UART, for testing)
+ *
+ * Handles receiving commands over I2C or UART
  * and displaying colors and animations on the LED strip.
- * 
+ *
  * Commands contain 4 bytes:
- * 
+ *
  * 3 bytes: Active Color
  *    1 byte: red channel
  *    1 byte: green channel
- *    1 byte: blue channel 
- * 
+ *    1 byte: blue channel
+ *
  * 1 byte: Active Animation
  *    0x0X -- Basics
  *      0x00: Off
  *      0x01: Solid Color
- * 
+ *
  *    0x1X -- Flashes
  *      0x10: Basic Flash
  *      0x11: Long Flash (long period on, short period off)
  *      0x12: Fast Flash
  *      0x13: Strobe
  *      0x14: Complex Flash (short period on, then long period on)
- * 
+ *
  *    0x2X -- Fades
  *      0x20: Basic Simultaneous Fade In/Out
  *      0x21: Wipe/Fade
- *    
+ *
  *    0x3X -- Wipes
  *      0x30: Basic Color Wipe
  *      0x31: Fast Color Wipe
  *      0x32: Larson Scanner
  *      0x33: Inverted Larson Scanner
- *    
+ *
  *    0x4X -- Twinkles
  *      0x40: Basic Theater Chase
  *      0x41: Running Lights / Wide Theater Chase
  *      0x42: Random Sparkle
  *      0x43: Inverted Random Sparkle / Snow Twinkles
  *      0x44: Paparazzi
- *    
+ *
  *    0x5X -- Rainbows
  *      0x50: Rainbow Circle
  *      0x51: Rainbow Theater Chase
+ *
+ * CONFIGURATION
+ *
+ * ENABLE_UART     Enable operation over UART/serial.
+ * ENABLE_I2C      Enable operation as an I2C slave.
+ * I2C_ADDR        Address for operation as an I2C slave.
+ *
+ * LED_PIN         GPIO pin which the NeoPixels are connected to.
+ * LED_COUNT       Number of LEDs connected to that pin.
+ * LED_BRIGHTNESS  [0-255] Brightness of the entire LED strip.
  */
 
-#define I2C_ADDR        0x04
 #define ENABLE_UART     1
+#define ENABLE_I2C      1
+#define I2C_ADDR        0x04
 
-// #define LED_PIN         PD6
-// #define LED_COUNT       237
-#define LED_PIN A0
+#define LED_PIN 26
 #define LED_COUNT 20
 #define LED_BRIGHTNESS  255
 
-Adafruit_NeoPixel strip(LED_COUNT, LED_PIN, NEO_GRB + NEO_KHZ800);
+
+
+#include <Wire.h>
+
+#ifdef ARDUINO_ARCH_RP2040
+  #include <Adafruit_NeoPXL8.h>
+#else
+  #include <Adafruit_NeoPixel.h>
+#endif
+
+
+#ifdef ARDUINO_ARCH_RP2040
+  int8_t pins[] = {LED_PIN, -1, -1, -1, -1, -1, -1, -1};
+  Adafruit_NeoPXL8 strip(LED_COUNT, pins, NEO_GRB);
+#else
+  Adafruit_NeoPixel strip(LED_COUNT, LED_PIN, NEO_GRB + NEO_KHZ800);
+#endif
 
 uint32_t framebuffer[LED_COUNT] = { 0 };
 uint8_t led_index = 0;
@@ -88,7 +122,7 @@ enum class Animation {
   randomSparkle = 0x42,
   invertedRandomSparkle = 0x43,
   paparazzi = 0x44,
-  
+
   rainbowCircle = 0x50,
   rainbowTheaterChase = 0x51,
 };
@@ -116,7 +150,7 @@ void handleReceive(int bytes) {
   uint8_t green = Wire.read();
   uint8_t blue = Wire.read();
 
-  active_color = strip.Color(red, green, blue);
+  active_color = strip.gamma32(strip.Color(red, green, blue));
 
   // We handle the default case whenever we use this enum
   // Therefore, we don't need to enforce that it's a valid anim
@@ -128,11 +162,14 @@ void setup() {
   strip.show();
   strip.setBrightness(LED_BRIGHTNESS);
 
+#if ENABLE_I2C
   Wire.begin(I2C_ADDR);
   Wire.onReceive(handleReceive);
+#endif
 
 #if ENABLE_UART
   Serial.begin(9600);
+  Serial.setTimeout(100);
 #endif
 }
 
@@ -227,7 +264,6 @@ void tick() {
       break;
 
 
-    
     default:
       tickOff();
   }
@@ -236,17 +272,19 @@ void tick() {
 }
 
 void readSerialCommand() {
-  if (Serial.available()) {
-    if (Serial.available() == 4) {
-      // full command
-      uint8_t red = Serial.read();
-      uint8_t green = Serial.read();
-      uint8_t blue = Serial.read();
+  while (Serial.available() > 1) {
+    String command = Serial.readStringUntil('\n');
 
-      active_color = strip.Color(red, green, blue);
-
-      active_animation = (Animation)Serial.read();
+    if (command.length() < 4) {
+      return;
     }
+
+    uint8_t red = command[0];
+    uint8_t green = command[1];
+    uint8_t blue = command[2];
+
+    active_color = strip.Color(red, green, blue);
+    active_animation = (Animation)(command[3]);
   }
 }
 
@@ -256,6 +294,6 @@ void loop() {
 #if ENABLE_UART
   readSerialCommand();
 #endif
-  
+
   delay(20);
 }
