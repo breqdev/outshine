@@ -1,4 +1,5 @@
 # outshine
+
 NeoPixel controller for Arduino, displaying effects on a NeoPixel strand based on commands received over UART or I2C.
 
 Commands take this 4-byte form:
@@ -33,6 +34,8 @@ The following animations are available:
   0x31: Fast Color Wipe
   0x32: Larson Scanner
   0x33: Inverted Larson Scanner
+  0x34: Circular Scanner
+  0x35: Inverted Circular Scanner
 
 0x4X -- Twinkles
   0x40: Basic Theater Chase

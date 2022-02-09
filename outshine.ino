@@ -45,6 +45,8 @@
  *      0x31: Fast Color Wipe
  *      0x32: Larson Scanner
  *      0x33: Inverted Larson Scanner
+ *      0x34: Circular Scanner
+ *      0x35: Inverted Circular Scanner
  *
  *    0x4X -- Twinkles
  *      0x40: Basic Theater Chase
@@ -117,6 +119,8 @@ enum class Animation {
   fastColorWipe = 0x31,
   larsonScanner = 0x32,
   invertedLarsonScanner = 0x33,
+  circularScanner = 0x34,
+  invertedCircularScanner = 0x35,
 
   theaterChase = 0x40,
   runningLights = 0x41,
@@ -239,6 +243,12 @@ void tick() {
       break;
     case (Animation::invertedLarsonScanner):
       tickLarsonScanner(true);
+      break;
+    case (Animation::circularScanner):
+      tickCircular(false);
+      break;
+    case (Animation::invertedCircularScanner):
+      tickCircular(true);
       break;
 
     // TWINKLES
