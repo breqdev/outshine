@@ -12,7 +12,7 @@ void tickTheaterChase(uint32_t framebuffer[], AnimState *state) {
 
 void tickRunningLights(uint32_t framebuffer[], AnimState *state) {
   for (uint8_t i = 0; i < state->led_count; ++i) {
-    uint8_t brightness = sine8(((state->led_index + i) % 15) * 256 / 15.0);
+    uint8_t brightness = sine8(((state->led_index + i) % state->led_count) * 256.0 / state->led_count);
     framebuffer[i] = dim(state->color, brightness);
   }
 }
