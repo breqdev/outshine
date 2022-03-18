@@ -11,10 +11,10 @@
 #define I2C_ADDR 0x04
 
 // Accept commands over BLE (on Bluefruit boards).
-#define ENABLE_BLE 0
+#define ENABLE_BLE 1
 
 // Connected LEDs
-#define LED_PIN 11
+#define LED_PIN PIN_NEOPIXEL
 #define LED_COUNT 1
 
 // Driving Mode

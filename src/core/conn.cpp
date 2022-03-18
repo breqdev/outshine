@@ -3,6 +3,14 @@
 
 AnimState *animState;
 
+#if ENABLE_BLE
+  // BLE Services
+  BLEDfu bledfu; // DFU Service
+  BLEDis bledis; // Device Information Service
+  BLEUart bleuart; // UART over BLE Service
+  BLEBas blebas; // Battery Service
+#endif
+
 #if ENABLE_I2C
 void handleReceive(int bytes) {
   if (bytes != 4) {
@@ -110,7 +118,7 @@ void handleCommands(AnimState *state) {
 
 #if ENABLE_BLE
   while (bleuart.available() > 1) {
-    String command = Serial.readStringUntil('\n');
+    String command = bleReadStringUntil('\n');
 
     if (command.length() < 4) {
       return;
