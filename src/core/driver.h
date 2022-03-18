@@ -6,8 +6,8 @@
 
 #if defined(ARDUINO_ARCH_RP2040)
   #define NEOPXL8
-#elif defined(ARDUINO_ARCH_SAMD)
-  #define ZERODMA
+// #elif defined(ARDUINO_ARCH_SAMD)
+//   #define ZERODMA
 #else
   #define NEOPIXEL
 #endif
