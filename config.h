@@ -7,7 +7,7 @@
 #define ENABLE_UART 1
 
 // Accept commands over I2C as a slave device at the given address.
-#define ENABLE_I2C 0
+#define ENABLE_I2C 1
 #define I2C_ADDR 0x04
 
 // Accept commands over BLE (on Bluefruit boards).
