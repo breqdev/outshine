@@ -21,6 +21,6 @@ uint32_t wheel(int pos) {
   return strip.gamma32(strip.ColorHSV(pos));
 }
 
-uint32_t color(uint8_t red, uint8_t blue, uint8_t green) {
+uint32_t color(uint8_t red, uint8_t green, uint8_t blue) {
   return strip.gamma32(strip.Color(red, green, blue));
 }
