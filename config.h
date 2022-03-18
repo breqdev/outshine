@@ -14,8 +14,8 @@
 #define ENABLE_BLE 0
 
 // Connected LEDs
-#define LED_PIN 26
-#define LED_COUNT 20
+#define LED_PIN 11
+#define LED_COUNT 1
 
 // Driving Mode
 #define LED_BRIGHTNESS 255
