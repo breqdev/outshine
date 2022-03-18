@@ -11,7 +11,7 @@
 #include "twinkles.h"
 #include "rainbows.h"
 
-void (*animations[0xFF])(uint32_t framebuffer[], AnimState *state);
+void (*animations[0x100])(uint32_t framebuffer[], AnimState *state);
 
 void initMapping() {
   // 0x0X - Basics
