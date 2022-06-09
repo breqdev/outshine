@@ -24,7 +24,10 @@ struct AnimState {
 
   // The current active color of the animation.
   // (The meaning of this is animation-dependent.)
-  uint32_t color;
+  uint32_t colors[16];
+
+  // The number of active colors.
+  uint8_t color_count;
 };
 
 #endif

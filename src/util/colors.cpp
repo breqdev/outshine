@@ -24,3 +24,9 @@ uint32_t wheel(int pos) {
 uint32_t color(uint8_t red, uint8_t green, uint8_t blue) {
   return strip.gamma32(strip.Color(red, green, blue));
 }
+
+uint32_t positional(AnimState* state, uint8_t position) {
+  double percentage = (double)position / (double)state->led_count;
+  uint8_t index = (uint8_t)(percentage * (double)state->color_count);
+  return state->colors[index];
+}

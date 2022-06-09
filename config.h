@@ -7,15 +7,15 @@
 #define ENABLE_UART 1
 
 // Accept commands over I2C as a slave device at the given address.
-#define ENABLE_I2C 1
+#define ENABLE_I2C 0
 #define I2C_ADDR 0x04
 
 // Accept commands over BLE (on Bluefruit boards).
-#define ENABLE_BLE 1
+#define ENABLE_BLE 0
 
 // Connected LEDs
-#define LED_PIN PIN_NEOPIXEL
-#define LED_COUNT 1
+#define LED_PIN A0
+#define LED_COUNT 20
 
 // Driving Mode
 #define LED_BRIGHTNESS 255

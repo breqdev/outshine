@@ -15,17 +15,25 @@ AnimState state = {
   0x00FF0000, // red
 };
 
+ConnState conn = {
+  false, // no transaction
+  0xFF, // no animation selected
+  {0}, // no colors selected
+  0x00, // no colors selected
+  0x00, // no color draft
+};
+
 uint32_t framebuffer[LED_COUNT] = { 0 };
 
 void setup() {
   initMapping();
   initStrip();
-  initConn(&state);
+  initPeripherals(&state, &conn);
 }
 
 
 void loop() {
-  handleCommands(&state);
+  handlePeripherals(&state, &conn);
 
   state.led_index += 1;
   if (state.led_index >= state.led_count) {

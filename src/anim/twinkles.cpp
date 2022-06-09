@@ -6,14 +6,15 @@ void tickTheaterChase(uint32_t framebuffer[], AnimState *state) {
   tickOff(framebuffer, state);
 
   for (uint8_t i = ((state->frame_count >> 2) % 3); i < state->led_count; i += 3) {
-    framebuffer[i] = state->color;
+    framebuffer[i] = positional(state, i);
   }
 }
 
 void tickRunningLights(uint32_t framebuffer[], AnimState *state) {
   for (uint8_t i = 0; i < state->led_count; ++i) {
     uint8_t brightness = sine8(((state->led_index + i) % state->led_count) * 256.0 / state->led_count);
-    framebuffer[i] = dim(state->color, brightness);
+    uint32_t color = positional(state, i);
+    framebuffer[i] = dim(color, brightness);
   }
 }
 
@@ -30,7 +31,8 @@ void tickSparkle(uint32_t framebuffer[], AnimState *state, bool inverted, uint8_
 
   for (uint8_t i = 0; i <= (state->led_count >> 4); ++i) {
     uint8_t rand_idx = random(state->led_count);
-    framebuffer[rand_idx] = inverted ? 0 : state->color;
+    uint32_t color = positional(state, rand_idx);
+    framebuffer[rand_idx] = inverted ? 0 : color;
   }
 }
 
